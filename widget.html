@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>notes_bridge — Kognita Systems</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ffffff;
+    --ink: #0a0a0a;
+    --ink-soft: #475569;
+    --ink-mute: #94a3b8;
+    --line: #e2e8f0;
+    --line-soft: #f1f5f9;
+    --accent: #0a0a0a;
+    --grid: rgba(15, 23, 42, 0.04);
+    --done: #cbd5e1;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 40px 40px;
+    min-height: 100vh;
+    padding: 48px 24px;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; }
+
+  /* Header */
+  header { margin-bottom: 32px; }
+  .eyebrow {
+    font-family: 'Fira Code', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-bottom: 8px;
+  }
+  h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 32px;
+    letter-spacing: -0.02em;
+    margin: 0 0 6px;
+  }
+  .sub { color: var(--ink-soft); font-size: 14px; }
+
+  /* Card */
+  .card {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 28px;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid var(--line);
+    margin: -28px -28px 22px;
+    padding: 0 22px;
+  }
+  .tab {
+    background: none;
+    border: none;
+    padding: 14px 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-soft);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color .15s, border-color .15s;
+  }
+  .tab:hover { color: var(--ink); }
+  .tab[aria-selected="true"] {
+    color: var(--ink);
+    border-bottom-color: var(--ink);
+  }
+  .tab .count {
+    font-family: 'Fira Code', monospace;
+    font-size: 11px;
+    color: var(--ink-mute);
+    margin-left: 6px;
+  }
+
+  /* Quick add */
+  .quick {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 22px;
+  }
+  .quick input {
+    flex: 1;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font: inherit;
+    font-size: 14px;
+    background: #fff;
+    color: var(--ink);
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .quick input:focus {
+    border-color: var(--ink);
+    box-shadow: 0 0 0 3px rgba(10,10,10,0.06);
+  }
+
+  /* Buttons */
+  button.primary, .quick button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 18px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: -0.005em;
+    transition: transform .05s, opacity .15s;
+  }
+  button.primary { width: 100%; padding: 14px 18px; margin-top: 22px; }
+  button.primary:hover, .quick button:hover { opacity: 0.88; }
+  button.primary:active, .quick button:active { transform: translateY(1px); }
+  .quick button { padding: 12px 16px; }
+
+  /* List */
+  ul.notes { list-style: none; padding: 0; margin: 0; }
+  ul.notes li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  ul.notes li:last-child { border-bottom: none; }
+  .checkbox {
+    flex: 0 0 auto;
+    width: 18px; height: 18px;
+    border: 1.5px solid var(--line);
+    border-radius: 5px;
+    margin-top: 2px;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: background .15s, border-color .15s;
+  }
+  .checkbox:hover { border-color: var(--ink); }
+  .checkbox[data-checked="true"] {
+    background: var(--ink);
+    border-color: var(--ink);
+  }
+  .checkbox[data-checked="true"]::after {
+    content: "";
+    width: 10px; height: 6px;
+    border-left: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+    transform: rotate(-45deg) translate(1px, -1px);
+  }
+  .body { flex: 1; min-width: 0; }
+  .text {
+    color: var(--ink);
+    word-break: break-word;
+    white-space: pre-wrap;
+    line-height: 1.5;
+    transition: color .15s, text-decoration-color .15s;
+  }
+  li.done .text {
+    color: var(--done);
+    text-decoration: line-through;
+    text-decoration-color: var(--done);
+  }
+  .meta {
+    margin-top: 4px;
+    font-family: 'Fira Code', monospace;
+    font-size: 11px;
+    color: var(--ink-mute);
+    letter-spacing: 0.02em;
+  }
+  .empty {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--ink-mute);
+    font-size: 13px;
+  }
+
+  /* Footer / status */
+  footer {
+    margin-top: 18px;
+    font-family: 'Fira Code', monospace;
+    font-size: 11px;
+    color: var(--ink-mute);
+    display: flex;
+    justify-content: space-between;
+    letter-spacing: 0.02em;
+  }
+  .pulse {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--ink);
+    margin-right: 6px;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 8px;">
+      <img src="assets/logo.png" alt="Notes Bridge" style="width: 46px; height: 46px; border-radius: 12px; border: 1px solid var(--line); object-fit: cover; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
+      <div>
+        <div class="eyebrow" style="margin-bottom: 2px;">NOTES BRIDGE // KOGNITA SYSTEMS</div>
+        <h1 style="margin: 0; font-size: 26px;">Daily Inbox</h1>
+      </div>
+    </div>
+    <div class="sub">Poznámky a úkoly z Telegramu & PC. Synchronizováno s Obsidian AI_Brain.</div>
+  </header>
+
+  <div class="card">
+    <div class="tabs" role="tablist">
+      <button class="tab" data-filter="all"  role="tab" aria-selected="true">Vše <span class="count" id="c-all">0</span></button>
+      <button class="tab" data-filter="open" role="tab" aria-selected="false">K vyřízení <span class="count" id="c-open">0</span></button>
+      <button class="tab" data-filter="done" role="tab" aria-selected="false">Dokončeno <span class="count" id="c-done">0</span></button>
+    </div>
+
+    <form class="quick" id="quick">
+      <input id="quick-input" type="text" placeholder="Rychlá poznámka z PC…" autocomplete="off" />
+      <button type="submit">Přidat</button>
+    </form>
+
+    <ul class="notes" id="list"></ul>
+    <div class="empty" id="empty" hidden>Inbox je prázdný.</div>
+
+    <button class="primary" id="handoff">Předat Orchestrátorovi</button>
+  </div>
+
+  <footer>
+    <span><span class="pulse"></span><span id="status">lokální režim</span></span>
+    <span id="updated">—</span>
+  </footer>
+</div>
+
+<script>
+/* ---------- data layer ---------- */
+const STORE_KEY = 'notes_bridge_v1';
+const DONE_MAP_KEY = 'notes_bridge_done_states_v1';
+const JSON_URL = window.location.protocol.startsWith('http') ? '/api/notes' : './notes.json';
+
+function getDoneMap() {
+  try { return JSON.parse(localStorage.getItem(DONE_MAP_KEY) || '{}'); } catch (_) { return {}; }
+}
+function saveDoneState(id, isDone) {
+  const m = getDoneMap();
+  m[id] = isDone;
+  localStorage.setItem(DONE_MAP_KEY, JSON.stringify(m));
+}
+
+let notes = [
+  { "id": "demo_1", "text": "Koupit kávu a čerstvé pečivo", "created_at": new Date().toISOString(), "done": false, "source": "telegram" },
+  { "id": "demo_2", "text": "Dokončit specifikaci a architekturu systému", "created_at": new Date().toISOString(), "done": false, "source": "telegram" },
+  { "id": "demo_3", "text": "Zkontrolovat nové pull requesty na GitHubu", "created_at": new Date().toISOString(), "done": true, "source": "pc" }
+];
+let filter = 'all';
+let mode = 'file';
+
+async function load() {
+  const doneMap = getDoneMap();
+  try {
+    const r = await fetch(JSON_URL, { cache: 'no-store' });
+    if (r.ok) {
+      const data = await r.json();
+      if (Array.isArray(data) && data.length > 0) {
+        notes = data;
+        mode = 'file';
+        setStatus('živý bridge · notes.json');
+      }
+    }
+  } catch (_) {
+    setStatus('lokální režim (synchronizováno)');
+  }
+
+  // apply persisted done states
+  notes.forEach(n => {
+    if (n.id && doneMap[n.id] !== undefined) {
+      n.done = doneMap[n.id];
+    }
+  });
+
+  render();
+}
+
+function persist() {
+  localStorage.setItem(STORE_KEY, JSON.stringify(notes));
+}
+
+function setStatus(t) {
+  document.getElementById('status').textContent = t;
+}
+
+/* ---------- rendering ---------- */
+function filtered() {
+  if (filter === 'open') return notes.filter(n => !n.done);
+  if (filter === 'done') return notes.filter(n =>  n.done);
+  return notes;
+}
+
+function fmtTime(iso) {
+  if (!iso) return '';
+  try {
+    const d = new Date(iso);
+    return d.toLocaleString('cs-CZ', {
+      day: '2-digit', month: '2-digit', year: '2-digit',
+      hour: '2-digit', minute: '2-digit'
+    });
+  } catch (_) { return iso; }
+}
+
+function render() {
+  const list = document.getElementById('list');
+  const empty = document.getElementById('empty');
+  const items = filtered();
+
+  // counts
+  const cAll  = notes.length;
+  const cOpen = notes.filter(n => !n.done).length;
+  const cDone = notes.filter(n =>  n.done).length;
+  document.getElementById('c-all').textContent  = cAll;
+  document.getElementById('c-open').textContent = cOpen;
+  document.getElementById('c-done').textContent = cDone;
+
+  list.innerHTML = '';
+  if (items.length === 0) {
+    empty.hidden = false;
+  } else {
+    empty.hidden = true;
+    for (const n of items) {
+      const li = document.createElement('li');
+      if (n.done) li.classList.add('done');
+      li.dataset.id = n.id || n.message_id || '';
+
+      const cb = document.createElement('div');
+      cb.className = 'checkbox';
+      cb.setAttribute('role', 'checkbox');
+      cb.setAttribute('aria-checked', String(!!n.done));
+      cb.dataset.checked = String(!!n.done);
+      cb.addEventListener('click', () => toggle(n));
+
+      const body = document.createElement('div');
+      body.className = 'body';
+      const t = document.createElement('div');
+      t.className = 'text';
+      t.textContent = n.text || '';
+      const m = document.createElement('div');
+      m.className = 'meta';
+      const src = n.source || 'local';
+      m.textContent = `${src} · ${fmtTime(n.created_at)}`;
+      body.appendChild(t); body.appendChild(m);
+
+      li.appendChild(cb); li.appendChild(body);
+      list.appendChild(li);
+    }
+  }
+  document.getElementById('updated').textContent =
+    'updated ' + new Date().toLocaleTimeString('cs-CZ');
+}
+
+/* ---------- mutations ---------- */
+function toggle(n) {
+  n.done = !n.done;
+  if (n.id) saveDoneState(n.id, n.done);
+  if (window.location.protocol.startsWith('http')) {
+    fetch('/api/toggle', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: n.id, done: n.done })
+    }).catch(() => {});
+  }
+  persist();
+  render();
+}
+
+async function addNote(text) {
+  const t = text.trim();
+  if (!t) return;
+  if (window.location.protocol.startsWith('http')) {
+    try {
+      const resp = await fetch('/api/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: t })
+      });
+      const data = await resp.json();
+      if (data.ok && data.note) {
+        notes.unshift(data.note);
+        persist();
+        render();
+        return;
+      }
+    } catch (_) {}
+  }
+  notes.unshift({
+    id: 'pc-' + Date.now(),
+    text: t,
+    created_at: new Date().toISOString(),
+    done: false,
+    source: 'pc'
+  });
+  persist();
+  render();
+}
+
+/* ---------- tabs ---------- */
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(b =>
+      b.setAttribute('aria-selected', 'false'));
+    btn.setAttribute('aria-selected', 'true');
+    filter = btn.dataset.filter;
+    render();
+  });
+});
+
+/* ---------- quick add ---------- */
+document.getElementById('quick').addEventListener('submit', e => {
+  e.preventDefault();
+  const inp = document.getElementById('quick-input');
+  addNote(inp.value);
+  inp.value = '';
+});
+
+/* ---------- handoff to Hermes ---------- */
+document.getElementById('handoff').addEventListener('click', () => {
+  const open = notes.filter(n => !n.done);
+  const done = notes.filter(n =>  n.done);
+  const payload = [
+    'Předáno z notes_bridge widgetu.',
+    '',
+    `K vyřízení (${open.length}):`,
+    ...open.map((n, i) => `  ${i + 1}. ${n.text}`),
+    '',
+    `Hotovo (${done.length}):`,
+    ...done.map((n, i) => `  ${i + 1}. ${n.text}`),
+    '',
+    'Prosím o priority a plán.'
+  ].join('\n');
+
+  const hermes = (typeof window !== 'undefined') ? window.hermes : null;
+  if (hermes && typeof hermes.send === 'function') {
+    hermes.send(payload);
+    setStatus('odesláno do Hermes ✓');
+  } else {
+    // graceful fallback: copy to clipboard
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(payload).then(() =>
+        setStatus('zkopírováno do schránky (Hermes.send není dostupný)'));
+    } else {
+      setStatus('Hermes.send není dostupný');
+      console.log(payload);
+    }
+  }
+});
+
+/* ---------- boot ---------- */
+load();
+if (window.location.protocol.startsWith('http')) {
+  setInterval(load, 2500);
+}
+</script>
+</body>
+</html>

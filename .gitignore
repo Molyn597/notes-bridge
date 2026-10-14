@@ -1,0 +1,27 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Environments
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+ENV/
+env/
+
+# Runtime state and local notes
+notes.json
+.state.json
+*.log
+*.tmp
+*.lnk
+.hermes-tmp*
+
+# OS specific
+.DS_Store
+Thumbs.db
+Desktop.ini
